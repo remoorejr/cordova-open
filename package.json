@@ -1,6 +1,6 @@
 {
   "name": "cordova-open",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Open audio, video, images and more with applications installed on the user's device",
   "cordova": {
     "id": "com.disusered.open",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/disusered/cordova-open.git"
+    "url": "https://github.com/remoorejr/cordova-open.git"
   },
   "keywords": [
     "cordova",

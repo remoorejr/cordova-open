@@ -18,6 +18,8 @@ $ cordova plugin add https://github.com/remoorejr/cordova-open.git
 
 - This version uses the newer AndroidX libraries for compatibility with the latest versions of Android.
 
+version 1.2.1, iOS : Initialize QLPreviewController in foreground thread, re; iOS 18.2 requirement.
+
 ## Usage
 
 ```javascript

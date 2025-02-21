@@ -25,27 +25,28 @@
 
         self.fileUrl = url;
 
-        QLPreviewController *previewCtrl = [[QLPreviewController alloc] init];
-        previewCtrl.delegate = self;
-        previewCtrl.dataSource = self;
-          
-        [previewCtrl.navigationItem setRightBarButtonItem:nil];
+       
           
         dispatch_async(dispatch_get_main_queue(), ^{
+           QLPreviewController *previewCtrl = [[QLPreviewController alloc] init];
+          previewCtrl.delegate = self;
+          previewCtrl.dataSource = self;
+          
+          [previewCtrl.navigationItem setRightBarButtonItem:nil];
           [self.viewController presentViewController:previewCtrl animated:YES completion:nil];
         });
 
-        NSLog(@"cordova.disusered.open - Success!");
+        NSLog(@"cordova.open - Success!");
         commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                           messageAsString:@""];
         [commandResult setKeepCallback:[NSNumber numberWithBool:YES]];
 
       } else {
-        NSLog(@"cordova.disusered.open - Invalid file URL");
+        NSLog(@"cordova.open - Invalid file URL");
         commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
       }
     } else {
-      NSLog(@"cordova.disusered.open - Missing URL argument");
+      NSLog(@"cordova.open - Missing URL argument");
       commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR];
     }
 
