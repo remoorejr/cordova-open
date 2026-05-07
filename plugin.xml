@@ -4,14 +4,15 @@
   <description>Open audio, video, images and more with applications installed on the user's device</description>
   <license>MIT</license>
   <keywords>cordova,file,open,intent,video,audio,image,photo,pdf</keywords>
-  <repo>https://github.com/disusered/cordova-open</repo>
-  <issue>https://github.com/disusered/cordova-open/issues</issue>
+  <repo>https://github.com/remoorejr/cordova-open</repo>
+  <issue>https://github.com/remoorejr/cordova-open/issues</issue>
+  
   <js-module name="Open" src="www/disusered.open.js">
     <merges target="cordova.plugins.disusered"/>
   </js-module>
-  <platform name="android">
 
-    <preference name="ANDROIDX_CORE_VERSION" default="1.6.+"/>
+  <platform name="android">
+    <preference name="ANDROIDX_CORE_VERSION" default="1.12.0"/>
     <framework src="androidx.core:core:$ANDROIDX_CORE_VERSION" />
 
     <config-file parent="/*" target="res/xml/config.xml">
@@ -19,9 +20,19 @@
         <param name="android-package" value="com.disusered.Open"/>
       </feature>
     </config-file>
+
+    <config-file target="AndroidManifest.xml" parent="/*">
+        <queries>
+            <intent>
+                <action android:name="android.intent.action.VIEW" />
+                <data android:mimeType="*/*" />
+            </intent>
+        </queries>
+    </config-file>
+
     <config-file parent="/manifest/application" target="AndroidManifest.xml">
         <provider 
-          android:name="com.disusered.cordova.open.FileProvider" 
+          android:name="androidx.core.content.FileProvider" 
           android:authorities="${applicationId}.provider" 
           android:exported="false" 
           android:grantUriPermissions="true">
@@ -30,10 +41,11 @@
               android:resource="@xml/open_provider_paths"/>
         </provider>
     </config-file>
+
     <source-file src="src/android/Open.java" target-dir="src/com/disusered"/>
-    <source-file src="src/android/FileProvider.java" target-dir="src/com/disusered"/>
     <source-file src="src/android/open_provider_paths.xml" target-dir="res/xml"/>
   </platform>
+
   <platform name="ios">
     <config-file parent="/*" target="config.xml">
       <feature name="Open">
@@ -45,6 +57,7 @@
     <source-file src="src/ios/Open.m"/>
     <header-file src="src/ios/Open.h"/>
   </platform>
+
   <dependency id="cordova-plugin-file" version=">=4.3.3"/>
   <dependency id="cordova-plugin-file-transfer" url="https://github.com/remoorejr/cordova-plugin-file-transfer" version=">=1.5.3"/>
 </plugin>
