@@ -93,6 +93,9 @@ public class Open extends CordovaPlugin {
             // Always use NEW_TASK when starting activity from Application Context
             fileIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
+            // Temporary test to see if MIME detection is the culprit
+            fileIntent.setDataAndTypeAndNormalize(contentUri, "application/pdf");
+
             cordova.getActivity().startActivity(fileIntent);
             callbackContext.success();
 
