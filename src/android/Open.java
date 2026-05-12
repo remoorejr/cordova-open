@@ -66,6 +66,8 @@ public class Open extends CordovaPlugin {
                 String filePath = path;
                 if (filePath.startsWith("file://")) {
                     filePath = filePath.substring(7);
+                    // Decode URL-encoded characters (like %20 for spaces)
+                    filePath = java.net.URLDecoder.decode(filePath, "UTF-8"); 
                 }
 
                 File file = new File(filePath);
@@ -75,6 +77,10 @@ public class Open extends CordovaPlugin {
                 }
 
                 String mime = getMimeType(path);
+                if (mime == null) {
+                    mime = "*/*"; // Fallback to ensure the Intent resolves even if mime is unrecognized
+                }
+                
                 Intent fileIntent = new Intent(Intent.ACTION_VIEW);
                 Context context = cordova.getActivity().getApplicationContext();
 
@@ -85,13 +91,22 @@ public class Open extends CordovaPlugin {
                     
                     fileIntent.setDataAndTypeAndNormalize(contentUri, mime);
                     fileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    fileIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION); // Optional but helpful
+                    fileIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION); 
+
+                    // FIX 1: Explicitly grant URI permission to all resolving packages
+                    java.util.List<android.content.pm.ResolveInfo> resInfoList = context.getPackageManager().queryIntentActivities(fileIntent, android.content.pm.PackageManager.MATCH_DEFAULT_ONLY);
+                    for (android.content.pm.ResolveInfo resolveInfo : resInfoList) {
+                        String packageName = resolveInfo.activityInfo.packageName;
+                        context.grantUriPermission(packageName, contentUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    }
                 } else {
                     fileIntent.setDataAndTypeAndNormalize(Uri.fromFile(file), mime);
                 }
 
-                // Always use NEW_TASK when starting activity from Application Context
-                fileIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                // FIX 2: Do NOT use FLAG_ACTIVITY_NEW_TASK when starting from an Activity context.
+                // It can sever the temporary URI permissions on newer Android builds.
+                // fileIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); 
+
                 cordova.getActivity().startActivity(fileIntent);
                 callbackContext.success();
 
@@ -105,4 +120,5 @@ public class Open extends CordovaPlugin {
             callbackContext.error(2);
         }
     }
+
 }
