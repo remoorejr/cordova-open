@@ -97,23 +97,29 @@ public class Open extends CordovaPlugin {
                 Context context = cordova.getActivity().getApplicationContext();
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { // API 24+
-                    // Ensure your package name matches the one in plugin.xml/AndroidManifest
+                    // Check for modern Cordova file provider authority first
                     String authority = context.getPackageName() + ".provider";
+                    String cdvFileAuthority = context.getPackageName() + ".cdv.core.file.provider";
+                    
+                    // If the modern cordova-plugin-file provider exists, use it to prevent SecurityExceptions
+                    if (context.getPackageManager().resolveContentProvider(cdvFileAuthority, 0) != null) {
+                        authority = cdvFileAuthority;
+                    }
+
                     Uri contentUri = FileProvider.getUriForFile(context, authority, file);
                     
                     fileIntent.setDataAndTypeAndNormalize(contentUri, mime);
                     fileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     fileIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION); 
 
-                    // FIX 1: Explicitly grant URI permission to all resolving packages
+                    // Explicitly grant URI permission to all resolving packages
                     java.util.List<android.content.pm.ResolveInfo> resInfoList = context.getPackageManager().queryIntentActivities(fileIntent, android.content.pm.PackageManager.MATCH_DEFAULT_ONLY);
                     for (android.content.pm.ResolveInfo resolveInfo : resInfoList) {
                         String packageName = resolveInfo.activityInfo.packageName;
                         context.grantUriPermission(packageName, contentUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     }
-                } else {
-                    fileIntent.setDataAndTypeAndNormalize(Uri.fromFile(file), mime);
                 }
+                
 
                 // FIX 2: Do NOT use FLAG_ACTIVITY_NEW_TASK when starting from an Activity context.
                 // It can sever the temporary URI permissions on newer Android builds.
