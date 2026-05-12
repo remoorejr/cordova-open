@@ -25,6 +25,7 @@
         <queries>
             <intent>
                 <action android:name="android.intent.action.VIEW" />
+                <data scheme="content" />
                 <data android:mimeType="*/*" />
             </intent>
         </queries>

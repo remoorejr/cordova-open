@@ -42,13 +42,25 @@ public class Open extends CordovaPlugin {
     private static String getMimeType(String path) {
         String mimeType = null;
 
+        // Try Android's built-in utility first
         String extension = MimeTypeMap.getFileExtensionFromUrl(path);
+        
+        // Fallback: Manually extract extension if Android's utility fails
+        if (extension == null || extension.isEmpty()) {
+            int i = path.lastIndexOf('.');
+            if (i > 0) {
+                extension = path.substring(i + 1);
+            }
+        }
+
         if (extension != null) {
             MimeTypeMap mime = MimeTypeMap.getSingleton();
             mimeType = mime.getMimeTypeFromExtension(extension.toLowerCase());
         }
 
-        System.out.println("Mime type: " + mimeType);
+        // Check your Logcat for this output! 
+        // If it prints "*/*" or "null" for a PDF, the viewer will be blank.
+        System.out.println("Resolved Mime type: " + mimeType);
 
         return mimeType;
     }
