@@ -60,53 +60,49 @@ public class Open extends CordovaPlugin {
      * @param callbackContext
      */
     private void chooseIntent(String path, CallbackContext callbackContext) {
-    if (path != null && path.length() > 0) {
-        try {
-            // Clean up the path if it starts with file://
-            String filePath = path;
-            if (filePath.startsWith("file://")) {
-                filePath = filePath.substring(7);
+        if (path != null && path.length() > 0) {
+            try {
+                // Clean up the path if it starts with file://
+                String filePath = path;
+                if (filePath.startsWith("file://")) {
+                    filePath = filePath.substring(7);
+                }
+
+                File file = new File(filePath);
+                if (!file.exists()) {
+                    callbackContext.error("File not found at: " + filePath);
+                    return;
+                }
+
+                String mime = getMimeType(path);
+                Intent fileIntent = new Intent(Intent.ACTION_VIEW);
+                Context context = cordova.getActivity().getApplicationContext();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { // API 24+
+                    // Ensure your package name matches the one in plugin.xml/AndroidManifest
+                    String authority = context.getPackageName() + ".provider";
+                    Uri contentUri = FileProvider.getUriForFile(context, authority, file);
+                    
+                    fileIntent.setDataAndTypeAndNormalize(contentUri, mime);
+                    fileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    fileIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION); // Optional but helpful
+                } else {
+                    fileIntent.setDataAndTypeAndNormalize(Uri.fromFile(file), mime);
+                }
+
+                // Always use NEW_TASK when starting activity from Application Context
+                fileIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                cordova.getActivity().startActivity(fileIntent);
+                callbackContext.success();
+
+            } catch (ActivityNotFoundException e) {
+                callbackContext.error(1); // No handler found
+            } catch (Exception e) {
+                e.printStackTrace();
+                callbackContext.error(0); // Undefined error
             }
-
-            File file = new File(filePath);
-            if (!file.exists()) {
-                callbackContext.error("File not found at: " + filePath);
-                return;
-            }
-
-            String mime = getMimeType(path);
-            Intent fileIntent = new Intent(Intent.ACTION_VIEW);
-            Context context = cordova.getActivity().getApplicationContext();
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { // API 24+
-                // Ensure your package name matches the one in plugin.xml/AndroidManifest
-                String authority = context.getPackageName() + ".provider";
-                Uri contentUri = FileProvider.getUriForFile(context, authority, file);
-                
-                fileIntent.setDataAndTypeAndNormalize(contentUri, mime);
-                fileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                fileIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION); // Optional but helpful
-            } else {
-                fileIntent.setDataAndTypeAndNormalize(Uri.fromFile(file), mime);
-            }
-
-            // Always use NEW_TASK when starting activity from Application Context
-            fileIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            // Temporary test to see if MIME detection is the culprit
-            fileIntent.setDataAndTypeAndNormalize(contentUri, "application/pdf");
-
-            cordova.getActivity().startActivity(fileIntent);
-            callbackContext.success();
-
-        } catch (ActivityNotFoundException e) {
-            callbackContext.error(1); // No handler found
-        } catch (Exception e) {
-            e.printStackTrace();
-            callbackContext.error(0); // Undefined error
+        } else {
+            callbackContext.error(2);
         }
-    } else {
-        callbackContext.error(2);
     }
-
 }
