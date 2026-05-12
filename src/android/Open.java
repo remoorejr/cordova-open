@@ -97,15 +97,8 @@ public class Open extends CordovaPlugin {
                 Context context = cordova.getActivity().getApplicationContext();
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { // API 24+
-                    // Check for modern Cordova file provider authority first
-                    String authority = context.getPackageName() + ".provider";
-                    String cdvFileAuthority = context.getPackageName() + ".cdv.core.file.provider";
-                    
-                    // If the modern cordova-plugin-file provider exists, use it to prevent SecurityExceptions
-                    if (context.getPackageManager().resolveContentProvider(cdvFileAuthority, 0) != null) {
-                        authority = cdvFileAuthority;
-                    }
-
+                    // Use our dedicated custom FileProvider authority defined in plugin.xml
+                    String authority = context.getPackageName() + ".opener.provider";
                     Uri contentUri = FileProvider.getUriForFile(context, authority, file);
                     
                     fileIntent.setDataAndTypeAndNormalize(contentUri, mime);
@@ -119,7 +112,6 @@ public class Open extends CordovaPlugin {
                         context.grantUriPermission(packageName, contentUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     }
                 }
-                
 
                 // FIX 2: Do NOT use FLAG_ACTIVITY_NEW_TASK when starting from an Activity context.
                 // It can sever the temporary URI permissions on newer Android builds.
