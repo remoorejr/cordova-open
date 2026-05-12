@@ -39,14 +39,14 @@
           android:grantUriPermissions="true">
           <meta-data
               android:name="android.support.FILE_PROVIDER_PATHS"
-              android:resource="@xml/opener_paths" />
+              android:resource="@xml/open_provider_paths" />
       </provider>
     </config-file>
 
-    
-
     <source-file src="src/android/Open.java" target-dir="src/com/disusered"/>
-    <source-file src="src/android/open_provider_paths.xml" target-dir="res/xml"/>
+    <source-file src="src/android/FileProvider.java" target-dir="src/com/disusered/cordova/open"/>
+    
+    <resource-file src="src/android/open_provider_paths.xml" target="res/xml/open_provider_paths.xml" />
   </platform>
 
   <platform name="ios">
